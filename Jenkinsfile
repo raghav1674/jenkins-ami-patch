@@ -30,23 +30,20 @@ pipeline {
 
       }
     }
-
-    stage('build the QA-service-02') {
-      steps {
-
-        script{
-
-           while(!isJobRunning){
-
-              isJobRunning = true;
+    post{
+        always{
+            echo "====++++always++++===="
+        }
+        success{
+            echo "====++++only when successful++++===="
+             node("${AWS_AGENT_LABEL}"){
               build job: "Second Job"
 
-           }
-            isJobRunning = false;
+             }
         }
-       
-
-      }
+        failure{
+            echo "====++++only when failed++++===="
+        }
     }
   }
   post {
