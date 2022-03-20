@@ -9,7 +9,7 @@ from utils.utils import (get_latest_ami_version,
 
 
 CONFIG_FILE_PATH = getenv(
-    'AWS_SERVICE_CONFIG_FILE') or './config/config.json' # config file path
+    'AWS_SERVICE_CONFIG_FILE') or './config/config.yaml' # config file path
 
 # check the ami versions
 def check_ami_versions():

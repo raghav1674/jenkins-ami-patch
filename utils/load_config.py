@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 
-from json import load
+from yaml import safe_load
 
 
 def get_config(config_file_path):
@@ -15,5 +15,5 @@ def get_config(config_file_path):
     '''
 
     with open(config_file_path) as fp:
-        config_data = load(fp)
+        config_data = safe_load(fp)
     return config_data

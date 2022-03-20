@@ -71,6 +71,8 @@ def get_service_ami_version_from_lc(client, service_name):
         if launch_configuration_dict and len(launch_configuration_dict['LaunchConfigurations']):
             filtered_launch_configurations = list(filter(lambda lc: lc['LaunchConfigurationName'].find(
                 service_name) != -1, launch_configuration_dict['LaunchConfigurations']))
+            filtered_launch_configurations.sort(
+                key=lambda image: image['CreationDate'], reverse=True)
             if len(filtered_launch_configurations):
                 return filtered_launch_configurations[0]['ImageId']
     return None
