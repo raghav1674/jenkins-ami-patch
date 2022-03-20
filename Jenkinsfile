@@ -57,14 +57,11 @@ pipeline {
     //  check for the ami version and if the ami is different , then go to the next stage.
     stage('check the ami version') {
 
-      agent {
-        label {
-          $ {
-            AWS_AGENT_LABEL
-          }
-        }
-      }
+      agent { label "${AWS_AGENT_LABEL}"}
       steps {
+
+        stash includes: 'jira/*', name: 'jiraSource'
+        stash includes: 'scripts/*', name: 'jiraScript'
 
         script {
 
@@ -107,6 +104,25 @@ pipeline {
     }
     success {
       echo "====++++only when successful ++++===="
+      node("${AWS_AGENT_LABEL}") {
+        withCredentials([
+          [
+            $class: 'UsernamePasswordMultiBinding',
+            credentialsId: "jira-cred",
+            usernameVariable: 'JIRA_USERNAME',
+            passwordVariable: 'JIRA_API_TOKEN',
+          ]
+        ]) {
+
+          unstash "jiraSource"
+          unstash "jiraScript"
+          sh ""
+          "
+          python3 scripts / create_issue.py ""
+          "
+        }
+
+      }
     }
     failure {
       echo "====++++only when failed++++===="
