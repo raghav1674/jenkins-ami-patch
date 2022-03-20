@@ -118,7 +118,7 @@ pipeline {
           unstash "jiraScript"
           sh ""
           "
-          python3 scripts / create_issue.py ""
+          python3 scripts/create_issue.py ""
           "
         }
 
