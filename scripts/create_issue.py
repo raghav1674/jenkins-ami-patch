@@ -9,8 +9,6 @@ from jira.jira import JiraAPI
 
 USERNAME = os.getenv('JIRA_USERNAME')
 API_TOKEN = os.getenv("JIRA_API_TOKEN")
-FIELD_PATH = os.getenv('FIELD_PATH').split(',')
-TARGET_FIELD_VALUE = os.getenv('TARGET_FIELD_VALUE')
 
 
 jira = JiraAPI(
