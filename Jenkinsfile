@@ -1,6 +1,9 @@
 serviceAmiIdChanged = [: ] // to store the serviceName: amiIsChangedOrNot
 String cron_string = "0 0 */20 * *" // cron every 20th of the month
-
+def status = "";
+def ticketNumber = "";
+def Universe = "qa"; // the universe
+def createTicket = false; // based on which to create or not to create ticket 
 // send the email 
 def sendEmail(subject, body, recipients) {
 
@@ -60,8 +63,7 @@ pipeline {
       agent { label "${AWS_AGENT_LABEL}"}
       steps {
 
-        stash includes: 'jira/*', name: 'jiraSource'
-        stash includes: 'scripts/*', name: 'jiraScript'
+        stash includes: '**', name: 'jiraSource'
 
         script {
 
@@ -85,6 +87,9 @@ pipeline {
     // create the jobs dynamically
     stage("QA") {
 
+
+      when { expression { Universe == "qa" || Universe == "cert"  }}
+
       steps {
 
         createStage("kodak", "")
@@ -94,9 +99,124 @@ pipeline {
         createStage("MUS", "")
         createStage("VMS", "")
 
+        script{
+
+          createTicket = true;
+        }
+
       }
 
     }
+
+    stage("UAT") {
+
+      when { expression { Universe == "uat"}}
+      steps {
+
+        createStage("kodak", "")
+        createStage("content-origin", "")
+        createStage("Dreamcatcher", "")
+        createStage("Concierge", "")
+        createStage("MUS", "")
+        createStage("VMS", "")
+
+          script{
+
+          createTicket = true;
+        }
+
+      }
+
+    }
+
+    stage("Prod") {
+
+      when { expression { Universe == "prod"}}
+
+      steps {
+
+        createStage("kodak", "")
+        createStage("content-origin", "")
+        createStage("Dreamcatcher", "")
+        createStage("Concierge", "")
+        createStage("MUS", "")
+        createStage("VMS", "")
+
+        script{
+
+          createTicket = false;
+        }
+
+      }
+
+    }
+
+
+    stage('create the jira ticket issue') {
+
+
+      when { expression { createTicket }}
+
+      agent { label "${AWS_AGENT_LABEL}"}
+      steps {
+       withCredentials([[
+            $class: 'UsernamePasswordMultiBinding',
+            credentialsId: "jira-cred",
+            usernameVariable: 'JIRA_USERNAME',
+            passwordVariable: 'JIRA_API_TOKEN',
+        ]]) {
+            
+          script {
+
+
+            unstash "jiraSource"
+            ticketNumber = sh(returnStdout: true, script: 'python3 scripts/create_issue.py');
+            ticketNumber = ticketNumber.replaceAll("[\n\r]", "");
+            println(ticketNumber);
+
+            if(Universe.equals("qa")){
+
+                Universe = "uat";
+            }else if(Universe.equals("uat")){
+
+              Universe = "prod";
+            }else{
+
+                Universe = "qa";
+            }
+
+            createTicket = !createTicket;
+          
+          }
+        }
+      }
+    }
+
+
+      stage('check the status of the field') {
+
+      agent { label "${AWS_AGENT_LABEL}"}
+      steps {
+       withCredentials([[
+            $class: 'UsernamePasswordMultiBinding',
+            credentialsId: "jira-cred",
+            usernameVariable: 'JIRA_USERNAME',
+            passwordVariable: 'JIRA_API_TOKEN',
+        ]]) {
+            
+          script {
+
+            unstash "jiraSource"
+            status = sh(returnStdout: true, script: "python3 scripts/check_status_field.py ${ticketNumber}")
+            status = status.replaceAll("[\n\r]", "");
+            println(status);
+          
+          }
+        }
+      }
+    }
+
+
   }
   post {
     always {
@@ -104,25 +224,6 @@ pipeline {
     }
     success {
       echo "====++++only when successful ++++===="
-      node("${AWS_AGENT_LABEL}") {
-        withCredentials([
-          [
-            $class: 'UsernamePasswordMultiBinding',
-            credentialsId: "jira-cred",
-            usernameVariable: 'JIRA_USERNAME',
-            passwordVariable: 'JIRA_API_TOKEN',
-          ]
-        ]) {
-
-          unstash "jiraSource"
-          unstash "jiraScript"
-          sh ""
-          "
-          python3 scripts/create_issue.py ""
-          "
-        }
-
-      }
     }
     failure {
       echo "====++++only when failed++++===="
