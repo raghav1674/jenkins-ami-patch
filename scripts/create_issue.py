@@ -16,7 +16,7 @@ TARGET_FIELD_VALUE = os.getenv('TARGET_FIELD_VALUE')
 jira = JiraAPI(
     USERNAME, API_TOKEN, "config/jira.config.yaml")
 
-details = jira.create_issue()
-print(details.key)
+details = loads(jira.create_issue())
+print(details["key"])
 
 
