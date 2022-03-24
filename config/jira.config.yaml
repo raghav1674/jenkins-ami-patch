@@ -1,6 +1,6 @@
 ---
-domain: raghav-personal
-projectKey: LEAR
+domain: salesforceusertest
+projectKey: TRY
 issueType: Task
 fields:
   description: "test latest from jenkins"
