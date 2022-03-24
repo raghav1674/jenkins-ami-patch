@@ -131,15 +131,17 @@ pipeline {
         ]) {
           
           // if there is any change in ami then only create ticket , otherwise dont.
-          if(serviceAmiIdChanged.size() > 0) {
+          script{
+            if(serviceAmiIdChanged.size() > 0) {
 
-              // unstash the jira module 
-              unstash "jiraSource"
-              // create the jira ticket
-              ticketNumber = sh(returnStdout: true, script: 'python3 scripts/create_issue.py')
-              // remove any extra new line character.
-              ticketNumber = ticketNumber.replaceAll("[\n\r]", "");
-              // build the second pipeline to provide the ticket Number as an argument 
+                // unstash the jira module 
+                unstash "jiraSource"
+                // create the jira ticket
+                ticketNumber = sh(returnStdout: true, script: 'python3 scripts/create_issue.py')
+                // remove any extra new line character.
+                ticketNumber = ticketNumber.replaceAll("[\n\r]", "");
+                // build the second pipeline to provide the ticket Number as an argument 
+            }
           }
         }
 
