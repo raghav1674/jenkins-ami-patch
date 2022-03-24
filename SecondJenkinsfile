@@ -86,7 +86,6 @@ pipeline {
       script {
 
           // if the status value is equal to the target value then only build
-          def previousStatusValue = currentBuild.previousBuild.buildVariables["previousStatus"];
           if(status.equals(params.FIELD_TARGET_VALUE) ){
 
               if(currentTicketNumber != currentBuild.previousBuild.buildVariables["ticketNumber"]){
