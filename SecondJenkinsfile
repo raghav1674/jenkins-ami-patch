@@ -1,5 +1,32 @@
 String cron_string = "0 0 */20 * *" // cron every 20th of the month
 def status = ''
+
+
+def createStage(stageName, jobName) {
+
+  script {
+      try {
+
+        stage("${stageName}") {
+
+          build job: "${jobName}"
+
+        }
+        // slackSend(channel: "#channelName", message: "Message")
+      } catch (Exception e) {
+
+        println(e.getMessage());
+        // slackSend(channel: "#channelName", message: "Message")
+
+
+        throw e;
+
+      }
+
+  }
+
+}
+
 pipeline {
   agent none
   triggers {
@@ -25,7 +52,20 @@ pipeline {
             
           script {
             
-            status = sh(returnStdout: true, script: 'python3 scripts/check_status_field.py')
+            // to store the current ticket number
+            def currentTicketNumber = params.JIRA_TICKET_NUMBER;
+
+            // store in env to get the value from the previousbuild 
+            env.ticketNumber = params.JIRA_TICKET_NUMBER
+
+            // if the previousticketNumber is there and the current ticket number is empty
+            def previousticketNumber = currentBuild.previousBuild.buildVariables["ticketNumber"];
+            if(previousticketNumber && (currentTicketNumber == null || currentTicketNumber.length() == 0)){
+
+              currentTicketNumber = currentBuild.previousBuild.buildVariables["ticketNumber"];
+            }
+            // run the script to poll for the status of the field from Jira.
+            status = sh(returnStdout: true, script: "python3 scripts/check_status_field.py ${currentTicketNumber}")
             status = status.replaceAll("[\n\r]", "");
             println(status);
           
@@ -39,10 +79,13 @@ pipeline {
     steps {
 
       script {
-          println(params.FIELD_TARGET_VALUE)
-          println(status)
-          if(status.equals(params.FIELD_TARGET_VALUE)){
 
+          // if the status value is equal to the target value then only build
+          def previousStatusValue = currentBuild.previousBuild.buildVariables["previousStatus"];
+          if(status.equals(params.FIELD_TARGET_VALUE) && (previousStatusValue == null || previousStatusValue.length() == 0)){
+
+              env.previousStatus = status;
+              
               echo "hello building...."
 
           }
