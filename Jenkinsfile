@@ -24,7 +24,7 @@ def createStage(stageName, jobName) {
   script {
 
     // if the ami is changed then only build the service specific job.
-    if (serviceAmiIdChanged["${jobName}"] == "True") {
+    if (serviceAmiIdChanged["${jobName}"] == "False") {
 
       try {
 
