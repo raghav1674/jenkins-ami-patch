@@ -62,7 +62,7 @@ pipeline {
   // parameter for the pipeline
   parameters {
     string(name: 'AWS_AGENT_LABEL', defaultValue: 'any', description: 'Label of the Agent which has python3 and aws profile configured')
-    string(name: 'AWS_SERVICE_CONFIG_FILE', defaultValue: './config/config.json', description: 'Path of the aws service config file')
+    string(name: 'AWS_SERVICE_CONFIG_FILE', defaultValue: './config/config.yaml', description: 'Path of the aws service config file')
   }
 
   // stages start from here
