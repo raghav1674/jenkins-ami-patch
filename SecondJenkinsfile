@@ -1,5 +1,6 @@
-String cron_string = "0 0 */20 * *" // cron every 20th of the month
+String cron_string = "${params.CRON_EXPRESSION} // cron every 20th of the month
 def status = ''
+
 
 def createStage(stageName, jobName) {
 
@@ -36,11 +37,14 @@ pipeline {
     string(name: 'JIRA_TICKET_NUMBER', description: 'Jira Ticket Number',defaultValue:currentBuild.previousBuild.buildVariables["ticketNumber"]?:'')
     string(name: 'FIELD_PATH', description: 'Field on the Jira Issue to Watch',defaultValue:'status.name')
     string(name: 'FIELD_TARGET_VALUE', description: 'Field target value when trigger the job',defaultValue:'Scheduled')
+    string(name: 'CRON_EXPRESSION'.description: 'Cron expression for the pipeline',defaultValue=''), 
+    string(name: 'UNIVERSE',description: 'environment',defaultValue:'uat')
+
   }
 
   stages {
     stage('check the jira field status') {
-      agent any
+      agent {label "<label>" }
       steps {
        withCredentials([[
             $class: 'UsernamePasswordMultiBinding',
@@ -50,7 +54,9 @@ pipeline {
         ]]) {
             
           script {
-     
+
+            env.ticketNumber = params.JIRA_TICKET_NUMBER;
+
             if(params.JIRA_TICKET_NUMBER != null){
 
               status = sh(returnStdout: true, script: "python3 scripts/check_status_field.py ${params.JIRA_TICKET_NUMBER}")
@@ -71,7 +77,7 @@ pipeline {
 
           // if the status value is equal to the target value then only build
           if(status.equals(params.FIELD_TARGET_VALUE) ){
-              def previousBuildTicket = currentBuild.previousBuild.buildVariables["ticketNumber"];
+             // def previousBuildTicket = currentBuild.previousBuild.buildVariables["ticketNumber"];
               if(params.JIRA_TICKET_NUMBER != previousBuildTicket){
 
                   echo "hello building...."
@@ -90,6 +96,18 @@ pipeline {
     }
     success {
       echo "====++++only when successful ++++===="
+      node(<label>){
+        
+        script{
+
+            if(params.UNIVERSE=="uat" || params.UNIVERSE=="stg"){
+
+                // build the prod job else don't
+            }
+
+        }
+
+      }
     }
     failure {
       echo "====++++only when failed++++===="
