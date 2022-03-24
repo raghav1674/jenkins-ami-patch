@@ -65,9 +65,12 @@ pipeline {
               currentTicketNumber = currentBuild.previousBuild.buildVariables["ticketNumber"];
             }
             // run the script to poll for the status of the field from Jira.
-            status = sh(returnStdout: true, script: "python3 scripts/check_status_field.py ${currentTicketNumber}")
-            status = status.replaceAll("[\n\r]", "");
-            println(status);
+            if(currentTicketNumber){
+
+              status = sh(returnStdout: true, script: "python3 scripts/check_status_field.py ${currentTicketNumber}")
+              status = status.replaceAll("[\n\r]", "");
+              println(status);
+            }
           
           }
         }
