@@ -1,6 +1,4 @@
-String cron_string = "${params.CRON_EXPRESSION} // cron every 20th of the month
 def status = ''
-
 
 def createStage(stageName, jobName) {
 
@@ -30,7 +28,7 @@ def createStage(stageName, jobName) {
 pipeline {
   agent none
   triggers {
-    cron(cron_string)
+    cron("${params.CRON_EXPRESSION}")
   }
   parameters {
 
@@ -80,7 +78,7 @@ pipeline {
           if(status.equals(params.FIELD_TARGET_VALUE) ){
             
               createStage("","");
-              
+
 
               
           
