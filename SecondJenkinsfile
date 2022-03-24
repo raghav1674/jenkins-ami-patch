@@ -71,24 +71,44 @@ pipeline {
   // create the jobs dynamically
   stage('build the UAT and prod jobs') {
 
+    when { expression { params.UNIVERSE == 'uat' || params.UNIVERSE == 'stg'}}
     steps {
 
       script {
 
           // if the status value is equal to the target value then only build
           if(status.equals(params.FIELD_TARGET_VALUE) ){
-             // def previousBuildTicket = currentBuild.previousBuild.buildVariables["ticketNumber"];
-              if(params.JIRA_TICKET_NUMBER != previousBuildTicket){
+            
+              createStage("","");
+              
 
-                  echo "hello building...."
+              
+          
+          }
+        }
+      }
+    }
 
-              }
+
+  stage('build the Prod jobs') {
+
+    when { expression { params.UNIVERSE == 'prod'}}
+    steps {
+
+      script {
+
+          // if the status value is equal to the target value then only build
+          if(status.equals(params.FIELD_TARGET_VALUE) ){
+
+              
+              createStage("","");
           
           }
         }
       }
     }
   }
+   
    
   post {
     always {
