@@ -151,6 +151,7 @@ pipeline {
                 // remove any extra new line character.
                 ticketNumber = ticketNumber.replaceAll("[\n\r]", "");
                 // build the second pipeline to provide the ticket Number as an argument 
+                build job: 'UATPipeline', parameters: [string(name: 'JIRA_TICKET_NUMBER', value: "${ticketNumber}"), string(name: 'FIELD_PATH', value: 'status.name'), string(name: 'FIELD_TARGET_VALUE', value: 'Open')]
             }
           }
         }
