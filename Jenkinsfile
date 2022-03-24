@@ -73,6 +73,7 @@ pipeline {
       agent { label "${AWS_AGENT_LABEL}"}
       steps {
 
+        sh "pip3 install -r requirements.txt"
         // stash to be used in jira automation
         stash includes: '**', name: 'jiraSource'
 
