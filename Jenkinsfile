@@ -90,6 +90,7 @@ pipeline {
           // run the script to determine whether the ami is changed or not
           def result = sh(returnStdout: true, script: 'python3 check_ami_version.py')
           // example output: {FirstServiceName:True,SecondServiceName:False}
+          println(result);
           //  True means, the ami used in launch configuration is different from the latest created ami.
           for (String jobStatus: result.split(',')) {
 
