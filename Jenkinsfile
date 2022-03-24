@@ -134,7 +134,7 @@ pipeline {
         withCredentials([
           [
             $class: 'UsernamePasswordMultiBinding',
-            credentialsId: "jira-cred",
+            credentialsId: "jira-creds",
             usernameVariable: 'JIRA_USERNAME',
             passwordVariable: 'JIRA_API_TOKEN',
           ]
