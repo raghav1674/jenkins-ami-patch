@@ -55,8 +55,7 @@ pipeline {
             // to store the current ticket number
             def currentTicketNumber = params.JIRA_TICKET_NUMBER;
 
-            // store in env to get the value from the previousbuild 
-            env.ticketNumber = params.JIRA_TICKET_NUMBER
+            
 
             // if the previousticketNumber is there and the current ticket number is empty
             def previousticketNumber = currentBuild.previousBuild.buildVariables["ticketNumber"];
@@ -64,6 +63,9 @@ pipeline {
 
               currentTicketNumber = currentBuild.previousBuild.buildVariables["ticketNumber"];
             }
+
+            // store in env to get the value from the previousbuild 
+            env.ticketNumber = currentTicketNumber
             // run the script to poll for the status of the field from Jira.
             if(currentTicketNumber){
 
