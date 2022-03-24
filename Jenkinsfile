@@ -72,6 +72,14 @@ pipeline {
 
       agent { label "${AWS_AGENT_LABEL}"}
       steps {
+        withCredentials([
+          [
+            $class: 'AmazonWebServicesCredentialsBinding',
+            credentialsId: "aws-creds",
+            accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+            secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+          ]
+        ]) {
 
         sh "pip3 install -r requirements.txt"
         // stash to be used in jira automation
@@ -96,7 +104,7 @@ pipeline {
         }
       }
     }
-
+    }
     // create the jobs dynamically
     stage("QA") {
 
