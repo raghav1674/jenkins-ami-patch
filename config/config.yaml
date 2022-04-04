@@ -4,30 +4,18 @@ regions:
 aws_boto_clients:
   - ec2
   - autoscaling
+  - ssm
 services:
-  - images:
-      filters:
-        - Name: name
-          Values:
-            - ansible*
-        - Name: tag:env
-          Values:
-            - test-raghav
-    service_name: first
-    job_name: first
-    regions:
-      - us-east-1
-      - ap-south-1
-  - images:
-      filters:
-        - Name: name
-          Values:
-            - ansible*
-        - Name: tag:env
-          Values:
-            - test-raghav
-    service_name: second
-    job_name: second
-    regions:
-      - us-east-1
-      - ap-south-1
+  ServiceOne:
+    Properties:
+      ami_id_ssm_parameter: /qa/ami_id
+      launch_config_name: test-v1
+      asg_name: test-asg-instance-refresh
+      instance_refresh_config:
+        strategy: "Rolling"
+        min_healthy_percentage: 90
+        instance_warmup: 300
+      regions:
+        - us-east-1
+
+
