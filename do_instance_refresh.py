@@ -30,7 +30,7 @@ for each_service in config:
                 instance_refresh_config  = config[each_service][each_region]['INSTANCE_REFRESH_CONFIG']
                 
                 # create new lt
-                new_lt_id = create_new_launch_template(ec2_client,lc_config,'ami-0b0af3577fe5e3532')
+                new_lt_id = create_new_launch_template(ec2_client,lc_config,new_ami_id)
                 if new_lt_id is not None:
 
                     # start instance refresh with the latest lt id
