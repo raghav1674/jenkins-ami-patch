@@ -94,6 +94,7 @@ def compare_ami_versions(this_ami, that_ami):
 
 def get_latest_launch_template(client,lt_name):
     
+    response = None
     try:
         response = client.describe_launch_template_versions(LaunchTemplateName=lt_name,Versions=["$Latest"])
     except botocore.exceptions.ClientError as error:
