@@ -73,16 +73,15 @@ def check_ami_versions():
             # first get the latest ami version
             latest_ami_id = get_latest_ami_version(ssm_client, ssm_parameter_path)
 
-           
 
             # first search if the launch template is present, if present then use that
-            launch_config = get_latest_launch_template(ec2_client,lc_name)
+            # launch_config = get_latest_launch_template(ec2_client,lc_name)
 
             # if lt is not present then search in launch configuration as it might be the first time
-            if not launch_config:
+            #if not launch_config:
 
-                launch_config = get_service_ami_version_from_lc(
-                    autoscaling_client, lc_name)
+            launch_config = get_service_ami_version_from_lc(
+                autoscaling_client, lc_name)
 
             launch_config_ami_id = launch_config and launch_config['ImageId']
                         

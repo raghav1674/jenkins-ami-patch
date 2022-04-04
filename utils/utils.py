@@ -116,6 +116,29 @@ def get_latest_launch_template(client,lt_name):
     response['SecurityGroups'] = response['SecurityGroupIds']
     return response
 
+def create_new_launch_configuration(client,old_config,new_ami_id):
+    '''
+    @purpose: create new launch configuration with old lc and new ami 
+
+    @input: old_config: Old launch configuration details
+            that_ami: new ami id
+
+    @returns: Id of the newly created launch configuration 
+    '''
+    old_config['LaunchConfigurationName'] = old_config['LaunchConfigurationName']+'Copy'
+    old_config['ImageId'] = new_ami_id
+    del old_config['LaunchConfigurationARN']
+    del old_config['CreatedTime']
+    if len(old_config.get('KernelId',0)) == 0:
+        del old_config['KernelId']
+    if len(old_config.get('RamdiskId',0)) == 0:
+        del old_config['RamdiskId']
+
+    client.create_launch_configuration(**old_config)
+   
+    return old_config['LaunchConfigurationName']
+
+
 def create_new_launch_template(client,old_config,new_ami_id):
     '''
     @purpose: create new launch template with old lc and new ami 
@@ -150,6 +173,7 @@ def create_new_launch_template(client,old_config,new_ami_id):
     response = None
     try:
         response = client.create_launch_template(**new_lt_config)
+        return response['LaunchTemplate']['LaunchTemplateId']
     except botocore.exceptions.ClientError as error:
         if error.response['Error']['Code'] == 'InvalidLaunchTemplateName.AlreadyExistsException':
 
@@ -169,7 +193,7 @@ def create_new_launch_template(client,old_config,new_ami_id):
 
     # print(response)
 
-def update_asg_with_new_lt(client,asg_name,lt_id,instance_refresh_preferences):
+def update_asg_with_new_lc(client,asg_name,lc_name,instance_refresh_preferences):
     '''
     @purpose: update the asg with the newly created lt
 
@@ -178,6 +202,12 @@ def update_asg_with_new_lt(client,asg_name,lt_id,instance_refresh_preferences):
 
     @returns: Id of the instance refresh 
     '''
+    # first update the auto scaling group
+    client.update_auto_scaling_group(
+        AutoScalingGroupName=asg_name,
+        LaunchConfigurationName=lc_name,
+    )
+    # then start the instance refresh
     res = client.start_instance_refresh(
         AutoScalingGroupName=asg_name,
         Strategy=instance_refresh_preferences['strategy'],
@@ -185,12 +215,12 @@ def update_asg_with_new_lt(client,asg_name,lt_id,instance_refresh_preferences):
             'MinHealthyPercentage': instance_refresh_preferences['min_healthy_percentage'],
             'InstanceWarmup': instance_refresh_preferences['instance_warmup']
         },
-        DesiredConfiguration={
-            'LaunchTemplate': {
-                'LaunchTemplateId': lt_id,
-                'Version': '$Latest'
-            }
-        }
+        # DesiredConfiguration={
+        #     'LaunchTemplate': {
+        #         'LaunchTemplateId': lt_id,
+        #         'Version': '$Latest'
+        #     }
+        # }
     )
 
     return res['InstanceRefreshId']

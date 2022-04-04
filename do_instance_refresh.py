@@ -2,8 +2,7 @@
 import json
 import logging
 
-
-from utils.utils import (update_asg_with_new_lt,
+from utils.utils import (create_new_launch_configuration, update_asg_with_new_lc,
                           create_new_launch_template,
                           check_instance_refresh_status)
 
@@ -35,15 +34,17 @@ for each_service in config:
                 asg_name =  config[each_service][each_region]['ASG_NAME']
                 instance_refresh_config  = config[each_service][each_region]['INSTANCE_REFRESH_CONFIG']
                 
-                logger.info(f'Action Required: New Launch template/ launch template version for service {each_service} , region {each_region}.')
+                logger.info(f'Action Required: New Launch Configuration for service {each_service} , region {each_region}.')
 
-                # create new lt
-                new_lt_id = create_new_launch_template(ec2_client,lc_config,new_ami_id)
-                if new_lt_id is not None:
-                    logger.info(f'New Launch template/ launch template version for service {each_service} , region {each_region} is {new_lt_id}')
+                # create new lc
+                new_lc_name = create_new_launch_configuration(asg_client,lc_config,new_ami_id)
+                
+                # new_lt_id = create_new_launch_template(ec2_client,lc_config,new_ami_id)
+                if new_lc_name is not None:
+                    logger.info(f'New Launch Configuration  for service {each_service} , region {each_region} is {new_lc_name}')
 
                     # start instance refresh with the latest lt id
-                    instance_refresh_id = update_asg_with_new_lt(asg_client,asg_name,new_lt_id,instance_refresh_config)
+                    instance_refresh_id = update_asg_with_new_lc(asg_client,asg_name,new_lc_name,instance_refresh_config)
                     logger.info(f'Instance Refresh({instance_refresh_id})started for service {each_service} , region {each_region}.')
                     # check the status until it is successful or failed
                     check_instance_refresh_status(asg_client,asg_name,instance_refresh_id)
