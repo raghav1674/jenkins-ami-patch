@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import json
+import logging
 from os import getenv
 from utils.load_config import DateTimeEncoder, get_config
 from utils.utils import (get_latest_ami_version, get_latest_launch_template,
@@ -7,6 +8,9 @@ from utils.utils import (get_latest_ami_version, get_latest_launch_template,
                          compare_ami_versions,
                          prepare_boto_clients
                          )
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 # temp file location , which can be reused across a pipeline run
 TEMP_STATE_FILE_PATH = '/tmp/services.state.json'
@@ -45,7 +49,8 @@ def check_ami_versions():
 
         # ssm parameter
         ssm_parameter_path = services[each_service]['Properties']['ami_id_ssm_parameter']
-
+        
+       
         # launch config name
         lc_name = services[each_service]['Properties']['launch_config_name']
 
@@ -68,6 +73,7 @@ def check_ami_versions():
             latest_ami_id = get_latest_ami_version(ssm_client, ssm_parameter_path)
 
             # launch config ami id
+            logger.info(f'The Latest ami id for service {svc_name} , region {each_region} is {latest_ami_id}')
 
             # first search if the launch template is present, if present then use that
             launch_config = get_latest_launch_template(ec2_client,lc_name)
@@ -79,17 +85,22 @@ def check_ami_versions():
                     autoscaling_client, lc_name)
 
             launch_config_ami_id = launch_config and launch_config['ImageId']
-
+            
+            logger.info(f'The ami id currently in use by service {svc_name} , region {each_region} is {launch_config_ami_id}')
             
             # if ami id and launch config ami id is not None
             if latest_ami_id and launch_config_ami_id:
                 # if ami id matches
                 if compare_ami_versions(latest_ami_id, launch_config_ami_id):
                     matched =  matched and True
+                    logger.info('No Action Required for {svc_name}: , The latest ami id({latest_ami_id}) and currently used ami({launch_config_ami_id}) is same for service {svc_name} , region {each_region}')
                 else:
                     matched = False
+                logger.info('No Action Required for {svc_name}:  The latest ami id({latest_ami_id}) and currently used ami({launch_config_ami_id}) does not matches for service {svc_name} , region {each_region}')
             else:
                 matched = None
+
+           
 
             # store the output
             status_map[svc_name][each_region] = {

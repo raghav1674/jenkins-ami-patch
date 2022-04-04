@@ -1,9 +1,13 @@
 #!/usr/bin/python3
+import logging
 from time import sleep
 import boto3
 import os
 import botocore
 
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 # status of instance refresh
 SUCCESS = 'Successful'
@@ -205,14 +209,14 @@ def check_instance_refresh_status(client,asg_name, instance_refresh_id):
 
         if instance_refresh_status in [IN_PROGRESS,PENDING]:
 
-            print(f'Instance Refresh Is In Progress for {asg_name} .....')
+            logger.info(f'Instance Refresh Is In Progress for {asg_name} .....')
         
         elif instance_refresh_status == SUCCESS:
-            print(f'Completed Instance Refresh for {asg_name}')
+            logger.info(f'Completed Instance Refresh for {asg_name}')
             break
         
         else: 
-            print(f'Some Error Occurred while instance refresh or instance refresh manually cancelled for {asg_name} with instance refresh id {instance_refresh_id}')
+            logger.warn(f'Some Error Occurred while instance refresh or instance refresh manually cancelled for {asg_name} with instance refresh id {instance_refresh_id}')
             break
 
         sleep(DELAY_INTERVAL)

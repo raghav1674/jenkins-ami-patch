@@ -1,5 +1,6 @@
 # read from the config file
 import json
+import logging
 
 
 from utils.utils import (update_asg_with_new_lt,
@@ -7,6 +8,10 @@ from utils.utils import (update_asg_with_new_lt,
                           check_instance_refresh_status)
 
 from check_ami_version import boto3_clients,regions
+
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 # temp file location , which can be reused across a pipeline run
 TEMP_FILE_PATH = '/tmp/services.state.json'
@@ -29,12 +34,16 @@ for each_service in config:
                 asg_name =  config[each_service][each_region]['ASG_NAME']
                 instance_refresh_config  = config[each_service][each_region]['INSTANCE_REFRESH_CONFIG']
                 
+                logger.info(f'Action Required: New Launch template/ launch template version for service {each_service} , region {each_region}.')
+
                 # create new lt
                 new_lt_id = create_new_launch_template(ec2_client,lc_config,new_ami_id)
                 if new_lt_id is not None:
+                    logger.info(f'New Launch template/ launch template version for service {each_service} , region {each_region} is {new_lt_id}')
 
                     # start instance refresh with the latest lt id
                     instance_refresh_id = update_asg_with_new_lt(asg_client,asg_name,new_lt_id,instance_refresh_config)
+                    logger.info(f'Instance Refresh({instance_refresh_id})started for service {each_service} , region {each_region}.')
                     # check the status until it is successful or failed
                     check_instance_refresh_status(asg_client,asg_name,instance_refresh_id)
 
