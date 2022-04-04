@@ -143,7 +143,7 @@ def create_new_launch_template(client,old_config,new_ami_id):
     if old_config.get('IamInstanceProfile'):
         s = old_config.get('IamInstanceProfile') 
         del old_config['IamInstanceProfile']
-        old_config['IamInstanceProfile'] = { 'name': old_config.get('IamInstanceProfile') }
+        old_config['IamInstanceProfile'] = { 'name': s }
     
     new_lt_config = {'LaunchTemplateName': lt_name,'LaunchTemplateData':old_config}
 
