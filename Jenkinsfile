@@ -2,7 +2,7 @@ String cron_string = "0 0 */20 * *" // cron every 20th of the month
 
 // actual pipeline 
 pipeline {
-  agent none
+  agent { label "${AWS_AGENT_LABEL}"}
   // trigers at the expression specified in cron 
   triggers {
     cron(cron_string)
