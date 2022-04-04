@@ -11,7 +11,7 @@ from utils.utils import (get_latest_ami_version, get_latest_launch_template,
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-# logger.addHandler(logging.StreamHandler())
+logger.addHandler(logging.StreamHandler())
 
 # temp file location , which can be reused across a pipeline run
 TEMP_STATE_FILE_PATH = '/tmp/services.state.json'
