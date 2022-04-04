@@ -130,9 +130,9 @@ def create_new_launch_template(client,old_config,new_ami_id):
 
     if old_config.get('LaunchConfigurationName'): del old_config['LaunchConfigurationName']
     if old_config.get('InstanceMonitoring'): del old_config['InstanceMonitoring']
-    if old_config.get('RamdiskId'): del old_config['RamdiskId']
-    if old_config.get('ClassicLinkVPCSecurityGroups'): del old_config['ClassicLinkVPCSecurityGroups']
-    if old_config.get('KernelId'): del old_config['KernelId']
+    if old_config.get('RamdiskId') == '': del old_config['RamdiskId']
+    if old_config.get('ClassicLinkVPCSecurityGroups') == []: del old_config['ClassicLinkVPCSecurityGroups']
+    if old_config.get('KernelId') == '': del old_config['KernelId']
     del old_config['SecurityGroups']
     if old_config.get('LaunchConfigurationARN'): del old_config['LaunchConfigurationARN']
     if old_config.get('CreatedTime'): del old_config['CreatedTime']
@@ -140,7 +140,11 @@ def create_new_launch_template(client,old_config,new_ami_id):
 
     old_config['SecurityGroupIds']=sg_ids
     old_config['ImageId'] = new_ami_id
-
+    if old_config.get('IamInstanceProfile'):
+        s = old_config.get('IamInstanceProfile') 
+        del old_config['IamInstanceProfile']
+        old_config['IamInstanceProfile'] = { 'name': old_config.get('IamInstanceProfile') }
+    
     new_lt_config = {'LaunchTemplateName': lt_name,'LaunchTemplateData':old_config}
 
     response = None
