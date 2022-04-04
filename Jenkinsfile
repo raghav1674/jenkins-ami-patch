@@ -20,15 +20,20 @@ pipeline {
 
       agent { label "${AWS_AGENT_LABEL}"}
       steps {
+         withCredentials([
+          [
+            $class: 'AmazonWebServicesCredentialsBinding',
+            credentialsId: "aws-creds",
+            accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+            secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+          ]
+        ]) {
       
         sh "pip3 install -r requirements.txt"
-    
-        script {
 
-          // run the script to determine whether the ami is changed or not
-          sh(returnStdout: true, script: 'python3 check_ami_version.py')
+        sh(returnStdout: true, script: 'python3 check_ami_version.py')
          
-        } 
+      }
       }
     }
     // create the jobs dynamically
@@ -44,11 +49,8 @@ pipeline {
           ]
         ]) {
 
-        script{
-
           sh(returnStdout: true, script: 'python3 do_instance_refresh.py')
-           
-        }
+
 
       }
       }
