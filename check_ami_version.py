@@ -76,7 +76,7 @@ def check_ami_versions():
             if not launch_config:
 
                 launch_config = get_service_ami_version_from_lc(
-                    autoscaling_client,ec2_client, lc_name)
+                    autoscaling_client, lc_name)
 
             launch_config_ami_id = launch_config and launch_config['ImageId']
 
