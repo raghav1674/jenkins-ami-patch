@@ -94,13 +94,13 @@ def check_ami_versions():
                 # if ami id matches
                 if compare_ami_versions(latest_ami_id, launch_config_ami_id):
                     matched =  matched and True
-                    logger.info('No Action Required for {svc_name}: , The latest ami id({latest_ami_id}) and currently used ami({launch_config_ami_id}) is same for service {svc_name} , region {each_region}')
+                    logger.info(f'No Action Required for {svc_name}: , The latest ami id({latest_ami_id}) and currently used ami({launch_config_ami_id}) is same for service {svc_name} , region {each_region}')
                 else:
                     matched = False
-                logger.info('No Action Required for {svc_name}:  The latest ami id({latest_ami_id}) and currently used ami({launch_config_ami_id}) does not matches for service {svc_name} , region {each_region}')
+                logger.info(f'Action Required for {svc_name}:  The latest ami id({latest_ami_id}) and currently used ami({launch_config_ami_id}) does not matches for service {svc_name} , region {each_region}')
             else:
                 matched = None
-
+ 
            
 
             # store the output
