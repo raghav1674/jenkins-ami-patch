@@ -24,6 +24,7 @@ cache_boto3_clients = []
 
 for each_service in config:
     if config[each_service]['AMI_CHANGED']:
+        logger.info(f'Action Required: As Latest Ami is available for service {each_service} , region {each_region}.')
         for each_region in config[each_service]:
             if each_region != 'AMI_CHANGED':
                 # read the config
@@ -47,4 +48,5 @@ for each_service in config:
                     # check the status until it is successful or failed
                     check_instance_refresh_status(asg_client,asg_name,instance_refresh_id)
 
-                
+    else:
+        logger.info(f'No Action Required: As Instances are using latest ami for service {each_service} , region {each_region}.')     
