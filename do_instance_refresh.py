@@ -12,6 +12,7 @@ from check_ami_version import boto3_clients,regions
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+logger.addHandler(logging.StreamHandler())
 
 # temp file location , which can be reused across a pipeline run
 TEMP_FILE_PATH = '/tmp/services.state.json'
