@@ -8,7 +8,7 @@ import botocore
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-logger.addHandler(logging.StreamHandler())
+
 
 # status of instance refresh
 SUCCESS = 'Successful'

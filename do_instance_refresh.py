@@ -12,7 +12,7 @@ from check_ami_version import boto3_clients,regions
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-logger.addHandler(logging.StreamHandler())
+# logger.addHandler(logging.StreamHandler())
 
 # temp file location , which can be reused across a pipeline run
 TEMP_FILE_PATH = '/tmp/services.state.json'
@@ -25,7 +25,6 @@ cache_boto3_clients = []
 
 for each_service in config:
     if config[each_service]['AMI_CHANGED']:
-        logger.info(f'Action Required: As Latest Ami is available for service {each_service}.')
         for each_region in config[each_service]:
             if each_region != 'AMI_CHANGED':
                 # read the config
