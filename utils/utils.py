@@ -136,6 +136,7 @@ def create_new_launch_template(client,old_config,new_ami_id):
     del old_config['SecurityGroups']
     if old_config.get('LaunchConfigurationARN'): del old_config['LaunchConfigurationARN']
     if old_config.get('CreatedTime'): del old_config['CreatedTime']
+    if old_config.get('BlockDeviceMappings'): del old_config['BlockDeviceMappings']
 
     old_config['SecurityGroupIds']=sg_ids
     old_config['ImageId'] = new_ami_id
