@@ -31,7 +31,7 @@ pipeline {
       
         sh "pip3 install -r requirements.txt"
 
-        sh(returnStdout: true, script: 'python3 check_ami_version.py')
+        sh "python3 check_ami_version.py"
          
       }
       }
@@ -49,7 +49,7 @@ pipeline {
           ]
         ]) {
 
-          sh(returnStdout: true, script: 'python3 do_instance_refresh.py')
+          sh "python3 do_instance_refresh.py"
 
 
       }
