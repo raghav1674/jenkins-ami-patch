@@ -2,7 +2,6 @@
 import json
 import logging
 import os
-import sys
 from slack.Slack import SlackAPI
 
 from utils.utils import (create_new_launch_configuration, get_asg_name, update_asg_with_new_lc,
