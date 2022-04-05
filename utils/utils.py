@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 import logging
+import sys
 from time import sleep
 import boto3
 import os
@@ -81,6 +82,7 @@ def get_service_ami_version_from_lc(client, launch_config_name):
             filtered_launch_configurations = list(filter(lambda lc: lc['LaunchConfigurationName'].find(
                 launch_config_name) != -1, launch_configuration_dict['LaunchConfigurations']))
             if len(filtered_launch_configurations):
+                filtered_launch_configurations.sort(key=lambda lc: lc['CreatedTime'],reverse=True)
                 return filtered_launch_configurations[0]
     return None
 

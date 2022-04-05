@@ -161,24 +161,24 @@ if __name__  == '__main__':
 
     # examples using slackapi
 
-    URL= 'https://hooks.slack.com/services/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'
+    URL= ''
     slackuse = SlackAPI(os.getenv('WEBHOOK_URL') or URL)
-    # slackuse.send_simple_message('test-v1')
+    slackuse.send_simple_message('test-v1')
 
-    section  =  slackuse.create_section()
+    # section  =  slackuse.create_section()
 
-    header = section.create_header('Test v1')
-    # section1 = section.create_section(['<https://google.com|Approve>','<https://wikipedia.com|Deny>'])
-    # section2 = section.create_section(['test v1-c'])
+    # header = section.create_header('Test v1')
+    # # section1 = section.create_section(['<https://google.com|Approve>','<https://wikipedia.com|Deny>'])
+    # # section2 = section.create_section(['test v1-c'])
 
-    button1 = section.create_link_button('Approve','https://google.com','primary')
-    button2  = section.create_link_button('Deny','https://google.com','danger')
+    # button1 = section.create_link_button('Approve','https://google.com','primary')
+    # button2  = section.create_link_button('Deny','https://google.com','danger')
 
-    slackuse.add_section(header)
-    slackuse.add_section(button1)
-    slackuse.add_section(button2)
+    # slackuse.add_section(header)
+    # slackuse.add_section(button1)
+    # slackuse.add_section(button2)
 
-    print(slackuse.send_customized_message())
+    # print(slackuse.send_customized_message())
 
 
 

@@ -33,7 +33,7 @@ def success_fn(**kwargs):
 
 
 for each_service in config:
-    if not config[each_service]['AMI_CHANGED']:
+    if config[each_service]['AMI_CHANGED']:
         for each_region in config[each_service]:
             if each_region != 'AMI_CHANGED':
                 # read the config
