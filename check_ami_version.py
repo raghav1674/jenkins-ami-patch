@@ -3,7 +3,7 @@ import json
 import logging
 from os import getenv
 from utils.load_config import DateTimeEncoder, get_config
-from utils.utils import (get_latest_ami_version, get_latest_launch_template,
+from utils.utils import (get_latest_ami_version,
                          get_service_ami_version_from_lc,
                          compare_ami_versions,
                          prepare_boto_clients
@@ -57,7 +57,7 @@ def check_ami_versions():
 
         # instance refresh config
         instance_refresh_config = services[each_service]['Properties']['instance_refresh_config']
-        asg_name = services[each_service]['Properties']['asg_name']
+        asg_name_prefix = services[each_service]['Properties']['asg_name']
 
         status_map[svc_name] = {}
 
@@ -105,7 +105,7 @@ def check_ami_versions():
                 'LAUNCH_CONFIG_AMI_ID': launch_config_ami_id,
                 'MATCHED': matched,
                 'LAUNCH_CONFIG': launch_config,
-                'ASG_NAME': asg_name,
+                'ASG_NAME': asg_name_prefix,
                 'INSTANCE_REFRESH_CONFIG': instance_refresh_config
 
             }

@@ -85,11 +85,37 @@ def get_service_ami_version_from_lc(client, launch_config_name):
     return None
 
 
+def get_asg_name(client, asg_name_prefix):
+    '''
+    @purpose: get the asg name from the asg name prefix
+
+    @input: client: boto3.Client
+            asg_name_prefix: str
+
+    @returns: asg_name: str 
+    '''
+    if asg_name_prefix:
+        
+        asg_dict = client.describe_auto_scaling_groups(MaxRecords=1)
+        next_token = asg_dict.get('NextToken', None)
+        while next_token is not None:
+            asgs = client.describe_auto_scaling_groups(
+                NextToken=next_token)
+            next_token = asgs.get('NextToken', None)
+            asg_dict['AutoScalingGroups'].extend(asgs['AutoScalingGroups'])
+        if asg_dict and len(asg_dict['AutoScalingGroups']):
+            filtered_asgs = list(filter(lambda lc: lc['AutoScalingGroupName'].find(
+                asg_name_prefix) != -1, asg_dict['AutoScalingGroups']))
+            if len(filtered_asgs):
+                return filtered_asgs[0]['AutoScalingGroupName']
+    return None
+
+
 def compare_ami_versions(this_ami, that_ami):
     '''
     @purpose: compare the amis
 
-    @input: this_ami: boto3.Client
+    @input: this_ami: str
             that_ami: str
 
     @returns: boolean 
@@ -225,12 +251,13 @@ def update_asg_with_new_lc(client,asg_name,lc_name,instance_refresh_preferences)
 
     return res['InstanceRefreshId']
 
-def check_instance_refresh_status(client,asg_name, instance_refresh_id):
+def check_instance_refresh_status(client,asg_name, instance_refresh_id,callbacks):
     '''
     @purpose: start the instance refresh 
 
     @input: asg: Auto Scaling Group
             refresh_config: configuration for the asg instance refresh 
+            callbacks: { 'errorFn': error function to call once the instance refresh is finished, 'successFn': success function to call }
 
     @returns: None 
     '''
@@ -249,10 +276,12 @@ def check_instance_refresh_status(client,asg_name, instance_refresh_id):
         
         elif instance_refresh_status == SUCCESS:
             logger.info(f'Completed Instance Refresh for {asg_name}')
+            callbacks['successFn'](asg_name=asg_name,message=f'Completed Instance Refresh for {asg_name}')
             break
         
         else: 
             logger.warn(f'Some Error Occurred while instance refresh or instance refresh manually cancelled for {asg_name} with instance refresh id {instance_refresh_id}')
+            callbacks['errorFn'](asg_name=asg_name,message=f'Some Error Occurred while instance refresh or instance refresh manually cancelled for {asg_name} with instance refresh id {instance_refresh_id}')
             break
 
         sleep(DELAY_INTERVAL)

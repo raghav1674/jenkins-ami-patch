@@ -10,10 +10,10 @@ services:
     Properties:
       ami_id_ssm_parameter: /qa/ami_id
       launch_config_name: test-v1
-      asg_name: test-asg-instance-refresh
+      asg_name: test-asg
       instance_refresh_config:
         strategy: "Rolling"
-        min_healthy_percentage: 90
+        min_healthy_percentage: 90 
         instance_warmup: 300
       regions:
         - us-east-1
