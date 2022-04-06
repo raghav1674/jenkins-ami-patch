@@ -8,7 +8,11 @@ aws_boto_clients:
 services:
   ServiceOne:
     Properties:
-      ami_id_ssm_parameter: /qa/ami_id
+      # ami_id_ssm_parameter: /qa/ami_id
+      ami_filters:
+      - Name: ''
+        Values:
+        - ''
       launch_config_name: test-v1
       asg_name: test-asg
       instance_refresh_config:

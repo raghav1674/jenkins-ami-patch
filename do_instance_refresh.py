@@ -15,8 +15,8 @@ logger.setLevel(logging.INFO)
 
 # temp file location , which can be reused across a pipeline run
 TEMP_FILE_PATH = '/tmp/services.state.json'
-URL= '<webhook_url>'
-slack = SlackAPI(os.getenv('WEBHOOK_URL') or URL)
+
+slack = SlackAPI(os.getenv('WEBHOOK_URL'))
 
 with open(TEMP_FILE_PATH,'r') as fp:
     config = json.load(fp)

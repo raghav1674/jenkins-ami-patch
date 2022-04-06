@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import datetime
 import logging
 import sys
 from time import sleep
@@ -44,7 +45,7 @@ def prepare_boto_clients(services, regions):
     return boto3_clients
 
 
-def get_latest_ami_version(client, ssm_parameter_path):
+def get_latest_ami_version(client, filters):
     '''
     @purpose: get the latest ami from a region based on filters
 
@@ -54,8 +55,21 @@ def get_latest_ami_version(client, ssm_parameter_path):
     @returns: ssm Parameter Value: str 
 
     '''
+
+    ''' retrieve from the parameter store 
     parameter = client.get_parameter(Name=ssm_parameter_path)
     return parameter['Parameter']['Value']
+    '''
+    if filters:
+        images = client.describe_images(Filters=filters)
+        if images and len(images['Images']):
+            for each_image in images['Images']:
+                each_image['CreationDate'] = datetime.strptime(
+                    each_image['CreationDate'], "%Y-%m-%dT%H:%M:%S.%fZ")
+            images['Images'].sort(
+                key=lambda image: image['CreationDate'], reverse=True)
+            return images['Images'][0]['ImageId']
+    return None
 
    
 

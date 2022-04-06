@@ -49,7 +49,10 @@ def check_ami_versions():
         matched = True
 
         # ssm parameter
-        ssm_parameter_path = services[each_service]['Properties']['ami_id_ssm_parameter']
+        #ssm_parameter_path = services[each_service]['Properties']['ami_id_ssm_parameter']
+
+        # getting the ami filters
+        filters = services[each_service]['Properties']['ami_filters']
         
        
         # launch config name
@@ -68,10 +71,10 @@ def check_ami_versions():
             # boto3 service clients
             ec2_client = boto3_clients[each_region]['EC2']
             autoscaling_client = boto3_clients[each_region]['AUTOSCALING']
-            ssm_client = boto3_clients[each_region]['SSM']
+            # ssm_client = boto3_clients[each_region]['SSM']
 
             # first get the latest ami version
-            latest_ami_id = get_latest_ami_version(ssm_client, ssm_parameter_path)
+            latest_ami_id = get_latest_ami_version(ec2_client, filters)
 
 
             # first search if the launch template is present, if present then use that
