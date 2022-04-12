@@ -175,9 +175,9 @@ def create_new_launch_configuration(client,old_config,new_ami_id):
         del old_config['KernelId']
     if len(old_config.get('RamdiskId',0)) == 0:
         del old_config['RamdiskId']
-
-    client.create_launch_configuration(**old_config)
     old_config['UserData'] = base64.b64decode(old_config['UserData'])
+    client.create_launch_configuration(**old_config)
+    
     return old_config['LaunchConfigurationName']
 
 
