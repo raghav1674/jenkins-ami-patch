@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 import json
 import logging
+from collections import OrderedDict
+
 from os import getenv
 from utils.load_config import DateTimeEncoder, get_config
 from utils.utils import (get_latest_ami_version,
@@ -39,7 +41,7 @@ def check_ami_versions():
     global config
     global boto3_clients
 
-    status_map = {}
+    status_map = OrderedDict()
 
 
     for each_service in services:
