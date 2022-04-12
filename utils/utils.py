@@ -1,7 +1,7 @@
 #!/usr/bin/python3
+import base64
 from datetime import datetime 
 import logging
-import sys
 from time import sleep
 import boto3
 import os
@@ -177,7 +177,7 @@ def create_new_launch_configuration(client,old_config,new_ami_id):
         del old_config['RamdiskId']
 
     client.create_launch_configuration(**old_config)
-   
+    old_config['UserData'] = base64.b64decode(old_config['UserData'])
     return old_config['LaunchConfigurationName']
 
 
