@@ -8,18 +8,20 @@ aws_boto_clients:
 services:
   ServiceOne:
     Properties:
-      # ami_id_ssm_parameter: /qa/ami_id
       ami_filters:
-      - Name: ''
-        Values:
-        - ''
-      launch_config_name: test-v1
-      asg_name: test-asg
+      - Name: 'tag:Name'
+        Values: 
+        - 'nginx-ami'
+      launch_config_name: nginx-service
+      asg_name: nginx-service
       instance_refresh_config:
         strategy: "Rolling"
         min_healthy_percentage: 90 
         instance_warmup: 300
       regions:
         - us-east-1
+      test_jobs:
+      - firstTestJob
+      - secondTestJob
 
 

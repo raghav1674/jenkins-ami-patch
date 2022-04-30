@@ -6,6 +6,7 @@ from time import sleep
 import boto3
 import os
 import botocore
+import concurrent.futures
 
 
 logger = logging.getLogger()
@@ -275,7 +276,7 @@ def check_instance_refresh_status(client,asg_name, instance_refresh_id,callbacks
             refresh_config: configuration for the asg instance refresh 
             callbacks: { 'errorFn': error function to call once the instance refresh is finished, 'successFn': success function to call }
 
-    @returns: None 
+    @returns: Status either "SUCCESS" |  "FAILURE"
     '''
     while True:
 
@@ -293,19 +294,49 @@ def check_instance_refresh_status(client,asg_name, instance_refresh_id,callbacks
         elif instance_refresh_status == SUCCESS:
             logger.info(f'Completed Instance Refresh for {asg_name}')
             callbacks['successFn'](asg_name=asg_name,message=f'Completed Instance Refresh for {asg_name}')
-            break
+            return "SUCCESS"
         
         else: 
             logger.warn(f'Some Error Occurred while instance refresh or instance refresh manually cancelled for {asg_name} with instance refresh id {instance_refresh_id}')
             callbacks['errorFn'](asg_name=asg_name,message=f'Some Error Occurred while instance refresh or instance refresh manually cancelled for {asg_name} with instance refresh id {instance_refresh_id}')
-            break
+            return "FAILURE"
 
         sleep(DELAY_INTERVAL)
 
-  
+
+def start_and_check_instance_refresh_status(client,asg_name,lc_name,instance_refresh_preferences,callbacks):
+    '''
+        @purpose: start and check the instance refresh status
+
+        @input: asg: Auto Scaling Group
+                refresh_config: configuration for the asg instance refresh 
+                callbacks: { 'errorFn': error function to call once the instance refresh is finished, 'successFn': success function to call }
+
+        @returns: Status either "SUCCESS" |  "FAILURE"
+    '''
+    instance_refresh_id = update_asg_with_new_lc(client,asg_name,lc_name,instance_refresh_preferences)
+    return check_instance_refresh_status(client,asg_name, instance_refresh_id,callbacks)
 
 
 
+def start_and_check_instance_refresh_status_async(clients,asg_name,lc_name,instance_refresh_preferences,callbacks):
+    '''
+        @purpose: async version of start `start_and_check_instance_refresh_status`
+
+        @input: asg: Auto Scaling Group
+                refresh_config: configuration for the asg instance refresh 
+                callbacks: { 'errorFn': error function to call once the instance refresh is finished, 'successFn': success function to call }
+
+        @returns: Status either "SUCCESS" |  "FAILURE"
+    '''
+
+    num_clients = len(clients)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=num_clients) as executor:
+        futures = [executor.submit(start_and_check_instance_refresh_status,client,asg_name,lc_name,instance_refresh_preferences,callbacks) for client in clients]
+        status = []
+        for future in concurrent.futures.as_completed(futures):
+            status.append(future.result())
+        return status
 
 
 

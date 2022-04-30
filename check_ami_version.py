@@ -133,17 +133,5 @@ def check_ami_versions():
 
     return status_map
 
-
-# get the result in a compact manner for groovy
-# def get_result():
-
-#     result = check_ami_versions()
-#     output = ''
-#     for service_name, each_service in result.items():
-#         output += service_name + \
-#             ":" + str(each_service['AMI_CHANGED'])
-#         output += ","
-
-#     return output
 if __name__ == '__main__':   
-    check_ami_versions()
+    print(check_ami_versions())
