@@ -3,8 +3,9 @@ import json
 import logging
 import os
 from slack.Slack import SlackAPI
+from utils.jenkins_utils import JenkinsApi
 
-from utils.utils import (create_new_launch_configuration, get_asg_name, start_and_check_instance_refresh_status_async, update_asg_with_new_lc,
+from utils.utils import (create_new_launch_configuration, get_asg_name, update_asg_with_new_lc,
                           check_instance_refresh_status)
 
 from check_ami_version import boto3_clients
@@ -17,8 +18,7 @@ logger.setLevel(logging.INFO)
 TEMP_FILE_PATH = '/tmp/services.state.json'
 
 slack = SlackAPI(os.getenv('WEBHOOK_URL'))
-
-
+jenkins_instance = JenkinsApi(os.getenv('JENKINS_URL'),os.getenv('JENKINS_USERNAME'),os.getenv('JENKINS_TOKEN'))
 
 def error_fn(**kwargs):
     slack.send_simple_message(f'{kwargs["asg_name"]} Failed.\n{kwargs["message"]}')
@@ -28,12 +28,15 @@ def success_fn(**kwargs):
     slack.send_simple_message(f'{kwargs["asg_name"]} Success.\n{kwargs["message"]}')
 
 def do_instance_refresh():
+
     with open(TEMP_FILE_PATH,'r') as fp:
         config = json.load(fp)
 
 
     for each_service in config:
         if config[each_service]['AMI_CHANGED']:
+            total_refresh = 0
+            successful_refresh = 0
             for each_region in config[each_service]:
                 if each_region != 'AMI_CHANGED':
                     # read the config
@@ -61,11 +64,19 @@ def do_instance_refresh():
                         # check the status until it is successful or failed
                         instance_refresh_status = check_instance_refresh_status(asg_client,asg_name,instance_refresh_id,{'errorFn': error_fn,'successFn':success_fn})
                         if instance_refresh_status == 'SUCCESS':
-                            pass 
-                        else:
-                            pass 
-                        # clients = [boto3_clients[each_region]['AUTOSCALING'] for each_region in config[each_service]]
-                        # start_and_check_instance_refresh_status_async(clients,asg_name,new_lc_name,instance_refresh_config,{'errorFn': error_fn,'successFn':success_fn})
+                            successful_refresh += 1
+                        total_refresh += 1
+            if total_refresh == successful_refresh:
+                logger.info(f'{each_service} is successfully refreshed, running the test jobs....')
+                for each_job in config[each_service]['TEST_JOBS']:
+                    response =  jenkins_instance.run_job(each_job)
+                    if response is None:
+                        logger.error(f'Job {each_job} for service {each_service} failed')
+                    else:
+                        logger.info(f'Job {each_job} for service {each_service} passed')
+            else:
+                logger.warning('f{each_service} , instance refresh not successful')
+
         else:
             logger.info(f'No Action Required: As Instances are using latest ami for service {each_service}')     
 

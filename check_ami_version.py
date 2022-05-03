@@ -64,7 +64,9 @@ def check_ami_versions():
         instance_refresh_config = services[each_service]['Properties']['instance_refresh_config']
         asg_name_prefix = services[each_service]['Properties']['asg_name']
 
-        status_map[svc_name] = {}
+        status_map[svc_name] = {
+            'TEST_JOBS':services[each_service]['Properties']['test_jobs']
+        }
 
         for each_region in services[each_service]['Properties']['regions']:
 
@@ -101,8 +103,7 @@ def check_ami_versions():
             else:
                 matched = None
  
-           
-
+        
             # store the output
             status_map[svc_name][each_region] = {
 
@@ -112,10 +113,7 @@ def check_ami_versions():
                 'LAUNCH_CONFIG': launch_config,
                 'ASG_NAME': asg_name_prefix,
                 'INSTANCE_REFRESH_CONFIG': instance_refresh_config
-
             }
-
-       
 
         if matched is not None:
             status_map[svc_name]['AMI_CHANGED'] = not matched

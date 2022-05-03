@@ -45,7 +45,10 @@ pipeline {
             credentialsId: "aws-creds",
             accessKeyVariable: 'AWS_ACCESS_KEY_ID',
             secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-          ]
+          ],
+          usernamePassword(credentialsId: 'jenkins_cred', 
+          passwordVariable: 'JENKINS_TOKEN', 
+          usernameVariable: 'JENKINS_USERNAME')
         ]) {
 
           sh "python3 do_instance_refresh.py"
