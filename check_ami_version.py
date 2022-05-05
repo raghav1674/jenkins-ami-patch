@@ -47,16 +47,9 @@ def check_ami_versions():
     for each_service in services:
 
         svc_name = each_service
-
         matched = True
-
-        # ssm parameter
-        #ssm_parameter_path = services[each_service]['Properties']['ami_id_ssm_parameter']
-
         # getting the ami filters
         filters = services[each_service]['Properties']['ami_filters']
-        
-       
         # launch config name
         lc_name = services[each_service]['Properties']['launch_config_name']
 
@@ -65,7 +58,7 @@ def check_ami_versions():
         asg_name_prefix = services[each_service]['Properties']['asg_name']
 
         status_map[svc_name] = {
-            'TEST_JOBS':services[each_service]['Properties']['test_jobs']
+            'TEST_JOBS':services[each_service]['Properties']['test_jobs'],
         }
 
         for each_region in services[each_service]['Properties']['regions']:
@@ -75,17 +68,9 @@ def check_ami_versions():
             # boto3 service clients
             ec2_client = boto3_clients[each_region]['EC2']
             autoscaling_client = boto3_clients[each_region]['AUTOSCALING']
-            # ssm_client = boto3_clients[each_region]['SSM']
 
             # first get the latest ami version
             latest_ami_id = get_latest_ami_version(ec2_client, filters)
-
-
-            # first search if the launch template is present, if present then use that
-            # launch_config = get_latest_launch_template(ec2_client,lc_name)
-
-            # if lt is not present then search in launch configuration as it might be the first time
-            #if not launch_config:
 
             launch_config = get_service_ami_version_from_lc(
                 autoscaling_client, lc_name)
@@ -112,7 +97,7 @@ def check_ami_versions():
                 'MATCHED': matched,
                 'LAUNCH_CONFIG': launch_config,
                 'ASG_NAME': asg_name_prefix,
-                'INSTANCE_REFRESH_CONFIG': instance_refresh_config
+                'INSTANCE_REFRESH_CONFIG': instance_refresh_config,
             }
 
         if matched is not None:

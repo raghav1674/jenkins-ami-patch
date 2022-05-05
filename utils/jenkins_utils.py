@@ -58,7 +58,5 @@ class JenkinsApi:
         return status
 
 if __name__ == '__main__':
-    jenkins_client = JenkinsApi("http://3.88.21.174:8080","raghav", "11c868fa2941ab95f96f6c800c166b36eb")
-    print(jenkins_client.run_jobs_in_parallel(["firstTestJob","secondtTestJob"]))
-    jenkins_client = JenkinsApi("http://3.88.21.174:8080","raghav", "11c868fa2941ab95f96f6c800c166b36eb")
+    jenkins_client = JenkinsApi("http://jenkins.com:8080","admin", "213213213")
     print(jenkins_client.run_jobs_in_parallel(["firstTestJob","secondtTestJob"]))
